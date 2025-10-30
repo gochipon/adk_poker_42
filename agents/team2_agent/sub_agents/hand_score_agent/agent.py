@@ -7,7 +7,7 @@ MODEL_GPT_4_O_MINI = LiteLlm(model="openai/gpt-4o-mini")
 AGENT_MODEL = MODEL_GPT_4_O_MINI
 
 root_agent = Agent(
-    name="simple_poker_agent",
+    name="HandScoreAgent",
     model=AGENT_MODEL,
     description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
     instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
@@ -36,4 +36,5 @@ root_agent = Agent(
 - ハンドの評価はhand_evaluator_toolを使用してください
 """,
     tools=[hand_evaluator_tool],
+    output_key="poker_decision",
 )
