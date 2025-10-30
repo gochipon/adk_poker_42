@@ -6,7 +6,7 @@ root_agent = Agent(
 	name="beginner_poker_agent",
 	model="gemini-2.5-flash-lite",
 	description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
-	instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
+	instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーBotで，toolsやsub_agentsから得られた情報をもとに意思決定を下し，指定のJSONフォーマットで結果を返します．
 
 				あなたのタスクは、現在のゲーム状況を分析し、最善の意思決定を下すことです。
 
