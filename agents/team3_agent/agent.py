@@ -50,6 +50,7 @@ root_agent = Agent(
 							同じJSONを複数回出力しないでください。
 				else if (preflop != game_state["phase"])// **プリフロップ以外の場合**
 					- 上記以外の状況では、必ずaction_agentを実行し、action_agentからの返り値を下記のJSON形式にして返してください。
+						action_decisioは、1回だけ呼んでください。複数回呼び出すのは禁止です。
 						Please output the return value of action_agent directly in JSON format.
 						Regulations that MUST be observed
 						Your response MUST be in the following JSON format:
