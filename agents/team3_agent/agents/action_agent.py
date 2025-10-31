@@ -18,7 +18,7 @@ action_agent = Agent(
 				"1) 以下から call_amount, pot_after_call を厳密に算出:\n"
 				"   - call_amount = game_state[\"to_call\"]\n"
 				"   - pot_after_call = game_state[\"pot\"] + call_amount\n"
-				"   - equity は状況から推定して数値[0.0-1.0]で与える（あなたが推定する）。\n"
+				"""   - equity は状況から推定して数値[0.0-1.0]で与える。受け取ったjsonk内のyour_cards(例["K♥", "J♥"]や)community(例["2♠", "2♦", "7♥", "2♥"]）から役判定をして、あなたが推測してください。\n"""
 				"2) action_decision を厳密な名前付き引数で1回だけ呼ぶ:\n"
 				"   action_decision(game_state=<受け取ったjsonそのもの>, call_amount=call_amount, pot_after_call=pot_after_call, equity=equity)\n"
 				"3) action_decision の返り値(JSON)のみをそのまま出力（説明一切禁止）。\n"

@@ -64,7 +64,7 @@ def action_decision(game_state: dict, call_amount: float, pot_after_call: float,
     if evRate > 10:
         if to_call == 0:
             # ベット（チップの1/1.5）
-            action = "bet"
+            action = "raise"
             amount = pot // 1.5
             reasoning = f"期待値が高い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、ベットします。ベット額: {amount}"
         else:
@@ -75,7 +75,7 @@ def action_decision(game_state: dict, call_amount: float, pot_after_call: float,
     elif evRate > 5:
         if to_call == 0:
             # ベット（チップの1/2）
-            action = "bet"
+            action = "raise"
             amount = pot // 2
             reasoning = f"期待値が中程度（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、ベットします。ベット額: {amount}"
         else:
@@ -86,7 +86,7 @@ def action_decision(game_state: dict, call_amount: float, pot_after_call: float,
     elif evRate >= 2:
         if to_call == 0:
             # ベット（チップの1/3）
-            action = "bet"
+            action = "raise"
             amount = pot // 3
             reasoning = f"期待値がそこそこ（{expected_value}(自分のスタックに対して{evRate:.2f}%）のため、ベットします。ベット額: {amount}"
         else:
