@@ -35,9 +35,7 @@ root_agent = Agent(
               - `calculate_position` ツールには，"your_id"と"dealer_button"の値を渡します
               - 戻り値として`position`が返されます
 					-   MUST: `position` が "BB" 以外の場合 **`judge_preflop_range`** ツールを呼び出します
-					    -   `judge_preflop_range` ツールには、`hand`と`position`を渡します。
-              -   `hand`は一貫した形式 ('AKo', 'AKs', 'QJs') に正規化されてから渡されます．
-              -   `o`: offsuited, `s`: suitedを表します
+					    -   `judge_preflop_range` ツールには、"your_cards"と`position`を渡します。
           -   ツールが `True`（レンジ内）を返した場合、"raise"（レイズ）を選択してください。
           -   ツールが `False`（レンジ外）を返した場合、"fold"（フォールド）を選択してください。
 						Regulations that MUST be observed
