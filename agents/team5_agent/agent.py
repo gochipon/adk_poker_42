@@ -1,139 +1,46 @@
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
 from team5_agent.agents.poker_rank_agent import hand_rank_evaluator_agent
+from .agents.preflop_strategy_agent import preflop_strategy_agent
 
 AGENT_MODEL = LiteLlm(model="openai/gpt-4o-mini")
 
-root_agent = Agent(
-    name="beginner_poker_agent",
+if 'preflop_strategy_agent' in globals():
+  root_agent = Agent(
+    name="team5_agent",
     model=AGENT_MODEL,
     description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
-    instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
+    instruction="""あなたはテキサスホールデム・ポーカーのプレイヤーです。
+あなたのタスクは、ゲームの状況を分析し、各phaseに対応するagentを使用して判断することです。
 
-あなたのタスクは、現在のゲーム状況を分析し、最善の意思決定を下すことです。
 
-あなたには以下の情報が与えられます:
+各strategy_agentに以下の情報を渡し、返答を得てください。
 - あなたの手札（ホールカード）
-- コミュニティカード（あれば）
+- コミュニティカード
+- 選択可能なアクション
+- ポットサイズやベット情報
+- 対戦相手の情報
 
-必ず次のJSON形式で回答してください:
+それぞれのstrategy_agentからの返答は次のjson形式です。
 {
   "action": "fold|check|call|raise|all_in",
   "amount": <数値>,
   "reasoning": "あなたの決定の理由を簡潔に説明"
 }
 
+preflop_strategy_agent の前に、hand_rank_evaluator_agent を使用してください。
+現在のphaseがpreflopの場合、actionの選定には、preflop_strategy_agentを使用してください。
+現在のphaseがpreflop以外の場合、自分で判断してください。
+
+以下の「ルール」に従っているかを確認し、もしstrategy_agentからの返答に誤りがあった場合、修正してください。
+確認、修正したJSONを返答してください。
+
 ルール:
 - "fold"と"check"の場合: amountは0にしてください
 - "call"の場合: コールに必要な正確な金額を指定してください
 - "raise"の場合: レイズ後の合計金額を指定してください
 - "all_in"の場合: あなたの残りチップ全額を指定してください
-- 必ず hand_rank_evaluator_agent を呼び出してから思考してください
-
----
-
-## ハンド表記ルール（Hand Notation Guide）
-
-以下の略記法を使ってハンドレンジを解釈してください：
-
-- 22, 77 など → ポケットペア
-- 「+」 → それ以上に強いすべての組み合わせを含む
-  - 例: 77+ = 77, 88, 99, TT, JJ, QQ, KK, AA
-- 「s」 → スーテッド（同じスート）
-  - 例: A5s = Aと5のスーテッドハンド
-- 「o」 → オフスート（異なるスート）
-  - 例: AJo = AとJのオフスートハンド
-- A2s+ = A2s, A3s, A4s, …, AKs
-- K9s+ = K9s, KTs, KJs, KQs
-- AJo+ = AJo, AQo, AKo
-- JTs = ジャックテン・スーテッド
-
-あなたのハンドが指定されたハンドと同等またはそれ以上の強さであれば、そのレンジに含まれると見なしてください。
-
----
-
-## 1 判断プロセス（Decision Process）
-
-以下の手順で判断します：
-
-1. **自分のポジションを求める**
-   position = (your_id - dealer_button) % number_of_players
-
-2. **状況を確認する**
-   - まだ誰もレイズしていない → 「プリフロップオープンレンジ」を使用
-   - 他のプレイヤーがレイズしている → 「リレイズ（3ベット）ルール」を使用
-   - すでにリレイズが行われている → 「さらにリレイズ（4ベット）ルール」を使用
-
-3. **アクションを選択する**
-   - レンジに含まれるハンドなら指定されたレイズまたはリレイズを行う
-   - 「Call」リストに含まれるハンドならコールする
-   - それ以外はフォールドする
-   - 実際の行動は入力JSONの "actions" 配列に存在するもののみを使用する
----
-
-## 2 プリフロップオープンレンジ（Preflop Open Range）
-
-| ポジション | プレイ可能ハンド |
-|-------------|------------------|
-| 0 | 22+, A2s+, K2s+, Q3s, J5s+, T6s+, 96s+, 86s+, 75s+, 65s+, 54s+, A3o+, K8o+, Q9o+, J8o+, T8o+ |
-| 1 | 22+, Q2s+, J3s+, T4s+, 95s+, 85s+, 74s+, 64s+, 53s+, A2o+, K6o+, Q9o+, J9o+, T9o+, 98o+ |
-| 3 | 66+, A2s+, K5s+, Q8s+, J9s+, A9o+, KTo+, QTo+ |
-| 4 | 55+, A2s+, K3s+, Q4s+, J8s+, T8s+, 98s+, A8o+, A5o, KTo+, QTo+, JTo+ |
-
-該当するハンドを持っている場合 → raise 60
-該当しない場合 → fold
-
----
-
-## 3 リレイズ（3ベット）ルール
-
-他のプレイヤーがすでにレイズしている場合は、以下を適用する：
-
-### ポジション 0, 1, 4
-- リレイズ（3ベット）するハンド:
-  77+, AJo+, KQo, A9s+, A5s–A3s, K9s+
-
-該当するハンドを持っている場合 → raise 250
-該当しない場合 → fold
----
-
-## 4 さらにリレイズ（4ベット）ルール
-
-すでに他のプレイヤーによるリレイズ（3ベット）がある場合：
-
-### オプションA
-AA–JJ, AQo, ATs, KJs, KTs, A5s
-
-該当するハンドを持っている場合 → raise 750
-該当しない場合 → fold
-
-### オプションB（別のバリエーション）
-AA–JJ, AKo, AKs, A5s
-
-該当するハンドを持っている場合 → raise allin
-該当しない場合 → fold
-
----
-
-## 5️ 判定例（Example Decision）
-
-入力JSONの例：
-
-{
-  "your_id": 2,
-  "dealer_button": 3,
-  "to_call": 40,
-  "actions": ["fold", "call (40)", "raise (min 60)"],
-  "your_cards": ["J♠", "T♠"]
-}
-
-判定手順:
-- position = (2 - 3) % 4 = 3
-- ハンド JTs はポジション3のオープンレンジに含まれる
-- まだレイズは発生していない → raise 60
-
-最終出力:
-raise 60
-""",
-  sub_agents=[hand_rank_evaluator_agent]
-)
+    """,
+    sub_agents=[preflop_strategy_agent, hand_rank_evaluator_agent],
+    # output_key="last_weather_report",
+    )
