@@ -1,10 +1,11 @@
 from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
 from ..tools.action_decision import action_decision
 
-MODEL_GEMINI_2_5_FLASH = "gemini-2.5-flash"
+MODEL_GPT_4_o_MINI = LiteLlm(model="openai/gpt-4o-mini")
 action_agent = Agent(
         # Using a potentially different/cheaper model for a simple task
-        model = MODEL_GEMINI_2_5_FLASH,
+        model = MODEL_GPT_4_o_MINI,
         # model=LiteLlm(model=MODEL_GPT_4O), # If you would like to experiment with other models
         name="action_agent",
         instruction="期待値を算出するし、アクション結果をjson形式で返す",
