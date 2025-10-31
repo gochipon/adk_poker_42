@@ -1,5 +1,6 @@
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
+from team5_agent.agents.poker_rank_agent import hand_rank_evaluator_agent
 from .agents.preflop_strategy_agent import preflop_strategy_agent
 
 AGENT_MODEL = LiteLlm(model="openai/gpt-4o-mini")
@@ -27,6 +28,7 @@ if 'preflop_strategy_agent' in globals():
   "reasoning": "あなたの決定の理由を簡潔に説明"
 }
 
+preflop_strategy_agent の前に、hand_rank_evaluator_agent を使用してください。
 現在のphaseがpreflopの場合、actionの選定には、preflop_strategy_agentを使用してください。
 現在のphaseがpreflop以外の場合、自分で判断してください。
 
@@ -39,6 +41,6 @@ if 'preflop_strategy_agent' in globals():
 - "raise"の場合: レイズ後の合計金額を指定してください
 - "all_in"の場合: あなたの残りチップ全額を指定してください
     """,
-    sub_agents=[preflop_strategy_agent],
+    sub_agents=[preflop_strategy_agent, hand_rank_evaluator_agent],
     # output_key="last_weather_report",
     )

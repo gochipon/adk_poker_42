@@ -112,27 +112,6 @@ AA–JJ, AKo, AKs, A5s
 
 該当するハンドを持っている場合 → raise allin
 該当しない場合 → fold
-
 ---
-
-## 5️ 判定例（Example Decision）
-
-入力JSONの例：
-
-{
-  "your_id": 2,
-  "dealer_button": 3,
-  "to_call": 40,
-  "actions": ["fold", "call (40)", "raise (min 60)"],
-  "your_cards": ["J♠", "T♠"]
-}
-
-判定手順:
-- position = (2 - 3) % 4 = 3
-- ハンド JTs はポジション3のオープンレンジに含まれる
-- まだレイズは発生していない → raise 60
-
-最終出力:
-raise 60
     """,
     )
