@@ -17,13 +17,6 @@ preflop_strategy_agent = Agent(
 - ポットサイズやベット情報
 - 対戦相手の情報
 
-必ず次のJSON形式で回答してください:
-{
-  "action": "fold|check|call|raise|all_in",
-  "amount": <数値>,
-  "reasoning": "あなたの決定の理由を簡潔に説明"
-}
-
 ルール:
 - "fold"と"check"の場合: amountは0にしてください
 - "call"の場合: コールに必要な正確な金額を指定してください
@@ -112,6 +105,9 @@ AA–JJ, AKo, AKs, A5s
 
 該当するハンドを持っている場合 → raise allin
 該当しない場合 → fold
+
+推奨するアクション（fold/check/call/raise/all_in）と具体的な金額、そしてその戦略的理由を詳しく説明してください。
 ---
     """,
+    output_key="strategy_analysis",
     )
