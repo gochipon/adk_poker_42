@@ -1,5 +1,6 @@
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
+from ..tools.should_raise_on_preflop  import should_raise_on_preflop
 
 AGENT_MODEL = LiteLlm(model="openai/gpt-4o-mini")
 
@@ -8,11 +9,10 @@ preflop_strategy_agent = Agent(
         name="preflop_strategy_agent",
         description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
         instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
-あなたのタスクは、preflopにおいて、最善のactionを決定することです。
+あなたのタスクは、preflopにおいて、テーブルの状況を確認しactionを決定することです。
 
 あなたには以下の情報が与えられます:
 - あなたの手札（ホールカード）
-- コミュニティカード（あれば）
 - 選択可能なアクション
 - ポットサイズやベット情報
 - 対戦相手の情報
@@ -23,91 +23,27 @@ preflop_strategy_agent = Agent(
 - "raise"の場合: レイズ後の合計金額を指定してください
 - "all_in"の場合: あなたの残りチップ全額を指定してください
 
----
-
-## ハンド表記ルール（Hand Notation Guide）
-
-以下の略記法を使ってハンドレンジを解釈してください：
-
-- 22, 77 など → ポケットペア
-- 「+」 → それ以上に強いすべての組み合わせを含む
-  - 例: 77+ = 77, 88, 99, TT, JJ, QQ, KK, AA
-- 「s」 → スーテッド（同じスート）
-  - 例: A5s = Aと5のスーテッドハンド
-- 「o」 → オフスート（異なるスート）
-  - 例: AJo = AとJのオフスートハンド
-- A2s+ = A2s, A3s, A4s, …, AKs
-- K9s+ = K9s, KTs, KJs, KQs
-- AJo+ = AJo, AQo, AKo
-- JTs = ジャックテン・スーテッド
-
-あなたのハンドが指定されたハンドと同等またはそれ以上の強さであれば、そのレンジに含まれると見なしてください。
-
----
-
-## 1 判断プロセス（Decision Process）
+## 判断プロセス（Decision Process）
 
 以下の手順で判断します：
 
 1. **自分のポジションを求める**
-   position = (your_id - dealer_button) % number_of_players
+  position = (your_id - dealer_button) % number_of_players
 
-2. **状況を確認する**
-   - まだ誰もレイズしていない → 「プリフロップオープンレンジ」を使用
-   - 他のプレイヤーがレイズしている → 「リレイズ（3ベット）ルール」を使用
-   - すでにリレイズが行われている → 「さらにリレイズ（4ベット）ルール」を使用
-
+2. **現在のphaseでraiseがされた回数確認する**
+  historyの中で、現在のphaseにおけるraiseの回数を数える
 3. **アクションを選択する**
-   - レンジに含まれるハンドなら指定されたレイズまたはリレイズを行う
-   - 「Call」リストに含まれるハンドならコールする
-   - それ以外はフォールドする
-   - 実際の行動は入力JSONの "actions" 配列に存在するもののみを使用する
----
-
-## 2 プリフロップオープンレンジ（Preflop Open Range）
-
-| ポジション | プレイ可能ハンド |
-|-------------|------------------|
-| 0 | 22+, A2s+, K2s+, Q3s, J5s+, T6s+, 96s+, 86s+, 75s+, 65s+, 54s+, A3o+, K8o+, Q9o+, J8o+, T8o+ |
-| 1 | 22+, Q2s+, J3s+, T4s+, 95s+, 85s+, 74s+, 64s+, 53s+, A2o+, K6o+, Q9o+, J9o+, T9o+, 98o+ |
-| 3 | 66+, A2s+, K5s+, Q8s+, J9s+, A9o+, KTo+, QTo+ |
-| 4 | 55+, A2s+, K3s+, Q4s+, J8s+, T8s+, 98s+, A8o+, A5o, KTo+, QTo+, JTo+ |
-
-該当するハンドを持っている場合 → raise 60
-該当しない場合 → fold
-
----
-
-## 3 リレイズ（3ベット）ルール
-
-他のプレイヤーがすでにレイズしている場合は、以下を適用する：
-
-### ポジション 0, 1, 4
-- リレイズ（3ベット）するハンド:
-  77+, AJo+, KQo, A9s+, A5s–A3s, K9s+
-
-該当するハンドを持っている場合 → raise 250
-該当しない場合 → fold
----
-
-## 4 さらにリレイズ（4ベット）ルール
-
-すでに他のプレイヤーによるリレイズ（3ベット）がある場合：
-
-### オプションA
-AA–JJ, AQo, ATs, KJs, KTs, A5s
-
-該当するハンドを持っている場合 → raise 750
-該当しない場合 → fold
-
-### オプションB（別のバリエーション）
-AA–JJ, AKo, AKs, A5s
-
-該当するハンドを持っている場合 → raise allin
-該当しない場合 → fold
+  現在のポジションとraise回数に基づきshould_raise_on_preflopツールを使用する。戻り値がtrueの場合レイズをする。
+  raiseすべきならば"raise"を選択し、そうでなければ"fold"を選択する
+  raiseするamountは、raise回数に応じて以下のように決定する:
+- 0回目のraise: 60
+- 1回目のraise: 251
+- 2回目のraise: 750
+- 3回目以降のraise: all_in
 
 推奨するアクション（fold/check/call/raise/all_in）と具体的な金額、そしてその戦略的理由を詳しく説明してください。
----
+
     """,
+    tools=[should_raise_on_preflop],
     output_key="strategy_analysis",
     )
