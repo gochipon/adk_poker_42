@@ -6,35 +6,62 @@ def action_decision(expected_value:  float, game_state: dict) -> dict[str, Any]:
 
     Args:
         game_state (dict): ゲームの状態データ。
-            "your_cards": 2枚の手札 (例: ["As", "Kd"])
-            "pot": 現在のポット額
-            "to_call": コールに必要な追加額 (0の場合はチェック/ベットが可能)
-            "your_chips": 残りチップ
-            "actions": 許容されるアクションリスト (例: ["fold", "call", "raise"])
+			"your_chips": 残りチップ(例: 970)
+			"pot": 現在のポット額(例: 140)
+			"to_call": コールに必要な追加額 (0の場合はチェック/ベットが可能)(例: 20)
 
     Returns:
         dict: 決定されたアクション、額、理由。
             "action": str ("fold", "call", "raise", "check")
             "amount": int (チップ額)
-            "reasoning": str (決定理由)
+            "reasoning": str (決定理由: 決定理由には、必ず期待値(expected_value)を入れて下さい)
     """
-    # 入力情報からデータ取得
-    # hand = game_state["your_cards"]
-    # pot = game_state["pot"]
+
+    your_chips = game_state["your_chips"]
     to_call = game_state["to_call"]
-    # your_chips = game_state["your_chips"]
-    # actions = game_state["actions"]
+    pot = game_state["pot"]
+    evRate = expected_value / your_chips * 100
 
     # 期待値に応じてaction決定
-    if expected_value < 0:
+    if evRate > 10:
+        if to_call == 0:
+            # ベット（チップの1/2）
+            action = "bet"
+            amount = pot // 2
+            reasoning = f"期待値が高い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、ベットします。ベット額: {amount}"
+        else:
+            # レイズ（3倍）
+            action = "raise"
+            amount = to_call * 3
+            reasoning = f"期待値が高い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、3倍レイズします。レイズ額: {amount}"
+    elif evRate > 5:
+        if to_call == 0:
+            # ベット（チップの1/3）
+            action = "bet"
+            amount = pot // 3
+            reasoning = f"期待値が中程度（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、ベットします。ベット額: {amount}"
+        else:
+            # コール
+            action = "call"
+            amount = to_call
+            reasoning = f"期待値が中程度（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、コールします。コール額: {amount}"
+    elif evRate > 2:
+        if to_call == 0:
+            # チェック
+            action = "check"
+            amount = 0
+            reasoning = f"期待値が低い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、チェックします"
+        else:
+            # コール
+            action = "call"
+            amount = to_call
+            reasoning = f"期待値が低い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、コールします。コール額: {amount}"
+    else:
+        # フォールド
         action = "fold"
         amount = 0
-        reasoning = "期待値が負なのでフォールド"
-    elif ...:
-        action = "call"
-        amount = to_call
-        reasoning = "..."  # ロジックの理由
-    # ... 以降全部の分岐
+        reasoning = f"期待値が{expected_value}(自分のスタックに対して{evRate:.2f}%で、マイナスなのでフォールド"
+
     return {
         "action": action,
         "amount": amount,
