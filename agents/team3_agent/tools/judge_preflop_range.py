@@ -1,6 +1,152 @@
 import re
 from typing import Dict, List, Literal, Optional, Set
 
+# GTO TABLE 2
+
+YOKOSAWA_RANGE_DATA_2: Dict[str, Set[str]] = {
+
+    # 判断をゆるくしている
+    
+    # === UTG (Under the Gun) === -> MP
+    # 約15%のレンジ
+    "UTG": {
+        # Pairs
+        "AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55",
+        # Suited Aces
+        "AKs", "AQs", "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+        # Suited Kings
+        "KQs", "KJs", "KTs", "K9s",
+        # Suited Queens
+        "QJs", "QTs", "Q9s",
+        # Suited Jacks
+        "JTs", "J9s",
+        # Suited Connectors
+        "T9s", "98s", "87s", "76s", "65s",
+        # Offsuit
+        "AKo", "AQo", "AJo",
+        "KQo"
+    },
+    
+    # # === MP (Middle Position) === -> CO
+    # # 約20-22%のレンジ (UTG + Alpha)
+    "MP": {
+        # Pairs
+        "AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
+        # Suited Aces
+        "AKs", "AQs", "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+        # Suited Kings
+        "KQs", "KJs", "KTs", "K9s", "K8s",
+        # Suited Queens
+        "QJs", "QTs", "Q9s", "Q8s",
+        # Suited Jacks
+        "JTs", "J9s", "J8s",
+        # Suited Tens
+        "T9s", "T8s",
+        # Suited Connectors
+        "98s", "87s", "76s", "65s", "54s",
+        # Offsuit Aces
+        "AKo", "AQo", "AJo", "ATo", "A9o", "A8o", "A7o", "A6o", "A5o",
+        # Offsuit Broadway
+        "KQo", "KJo", "KTo",
+        "QJo", "QTo",
+        "JTo"
+    },
+    
+    # === CO (Cutoff) === -> BTN
+    # 約27-30%のレンジ
+    "CO": {
+        # Pairs
+        "AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
+        # Suited Aces
+        "AKs", "AQs", "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+        # Suited Kings
+        "KQs", "KJs", "KTs", "K9s", "K8s", "K7s", "K6s", "K5s", "K4s", "K3s", "K2s",
+        # Suited Queens
+        "QJs", "QTs", "Q9s", "Q8s", "Q7s", "Q6s", "Q5s", "Q4s", "Q3s", "Q2s",
+        # Suited Jacks
+        "JTs", "J9s", "J8s", "J7s", "J6s", "J5s", "J4s",
+        # Suited Tens
+        "T9s", "T8s", "T7s", "T6s",
+        # Suited Connectors
+        "98s", "97s", "96s",
+        "87s", "86s",
+        "76s", "75s",
+        "65s", "64s",
+        "54s",
+        # Offsuit Aces
+        "AKo", "AQo", "AJo", "ATo", "A9o", "A8o", "A7o", "A6o", "A5o", "A4o", "A3o", "A2o",
+        # Offsuit Kings
+        "KQo", "KJo", "KTo", "K9o", "K8o",
+        # Offsuit Queens
+        "QJo", "QTo", "Q9o",
+        # Offsuit Jacks
+        "JTo", "J9o",
+        # Offsuit Tens
+        "T9o"
+    },
+    
+    # === BTN (Button) === -> SB
+    # 約45-50%のレンジ
+    "BTN": {
+        # Pairs
+        "AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
+        # Suited Aces
+        "AKs", "AQs", "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+        # Suited Kings
+        "KQs", "KJs", "KTs", "K9s", "K8s", "K7s", "K6s", "K5s",
+        # Suited Queens
+        "QJs", "QTs", "Q9s", "Q8s",
+        # Suited Jacks
+        "JTs", "J9s", "J8s", "J7s",
+        # Suited Tens
+        "T9s", "T8s",
+        # Suited Connectors
+        "98s", "97s",
+        "87s", "86s",
+        "76s", "75s",
+        "65s", "64s",
+        "54s",
+        # Offsuit Aces
+        "AKo", "AQo", "AJo", "ATo", "A9o", "A8o", "A7o", "A6o", "A5o",
+        # Offsuit Kings
+        "KQo", "KJo", "KTo", "K9o",
+        # Offsuit Queens
+        "QJo", "QTo",
+        # Offsuit Jacks
+        "JTo"
+    },
+    # === SB (Small Blind) === ママ
+    # 約35-40%のレンジ (BTNより少しタイト。リンプ戦略や3bet戦略も多用されるが、ここではレイズのみ)
+    "SB": {
+        # Pairs
+        "AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
+        # Suited Aces
+        "AKs", "AQs", "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+        # Suited Kings
+        "KQs", "KJs", "KTs", "K9s", "K8s", "K7s", "K6s", "K5s",
+        # Suited Queens
+        "QJs", "QTs", "Q9s", "Q8s",
+        # Suited Jacks
+        "JTs", "J9s", "J8s", "J7s",
+        # Suited Tens
+        "T9s", "T8s",
+        # Suited Connectors
+        "98s", "97s",
+        "87s", "86s",
+        "76s", "75s",
+        "65s", "64s",
+        "54s",
+        # Offsuit Aces
+        "AKo", "AQo", "AJo", "ATo", "A9o", "A8o", "A7o", "A6o", "A5o",
+        # Offsuit Kings
+        "KQo", "KJo", "KTo", "K9o",
+        # Offsuit Queens
+        "QJo", "QTo",
+        # Offsuit Jacks
+        "JTo"
+    }
+}
+
 # GTO (Game Theory Optimal) 6-Max, 100bb Deep, No Ante, 2.5x Open Raise
 # (注意: 混合戦略を簡略化し、高頻度でレイズするハンドを中心に構成)
 #
@@ -363,7 +509,7 @@ def judge_preflop_range(
               is invalid (e.g., "AXs", "T", ["2c"]) and cannot be normalized.
     """
     
-    if position not in YOKOSAWA_RANGE_DATA:
+    if position not in YOKOSAWA_RANGE_DATA_2:
         # print(f"Warning: Range data for position '{position}' is not defined.")
         return False
     try:
@@ -372,7 +518,7 @@ def judge_preflop_range(
     except ValueError as e:
         # print(f"Hand normalization error: {e}")
         return False
-    target_range: Set[str] = YOKOSAWA_RANGE_DATA.get(position, set())
+    target_range: Set[str] = YOKOSAWA_RANGE_DATA_2.get(position, set())
     if normalized_hand in target_range:
         return True
     return False
