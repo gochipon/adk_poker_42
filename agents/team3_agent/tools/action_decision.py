@@ -104,9 +104,8 @@ def action_decision(game_state: dict, call_amount: float, pot_after_call: float,
     return {"action": "fold", "amount": 0, "reasoning": reasoning}
 
 
-      # valueRate = expected_value / pot * 100
-
-    # # 期待値に応じてaction決定
+    # valueRate = expected_value / pot * 100
+    # # ポットと期待値の割合に応じてaction決定
     # if valueRate > 90:
     #     if to_call == 0:
     #         # ベット（pot分）
