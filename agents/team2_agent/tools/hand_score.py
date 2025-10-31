@@ -3,7 +3,6 @@ from enum import Enum
 from collections import Counter
 from itertools import combinations
 
-
 class Suit(Enum):
     SPADES = "spades"
     HEARTS = "hearts"
@@ -362,7 +361,7 @@ def _score_from_rank_value(rank_value: int) -> float:
     return (rank_value - 1) / 9.0
 
 
-def hand_evaluator_tool(
+def hand_score_tool(
     your_cards: List[str],
     community_cards: Optional[List[str]] = None,
 ) -> Dict[str, Any]:

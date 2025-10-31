@@ -1,5 +1,4 @@
 from google.adk.agents import Agent
-from .hand_evaluator_tool import hand_evaluator_tool
 from google.adk.models.lite_llm import LiteLlm
 
 MODEL_GPT_4_O_MINI = LiteLlm(model="openai/gpt-4o-mini")
@@ -7,21 +6,14 @@ MODEL_GPT_4_O_MINI = LiteLlm(model="openai/gpt-4o-mini")
 AGENT_MODEL = MODEL_GPT_4_O_MINI
 
 root_agent = Agent(
-    name="simple_poker_agent",
+    name="FormatAgent",
     model=AGENT_MODEL,
     description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
     instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
 
-あなたのタスクは、現在のゲーム状況を分析し、最善の意思決定を下すことです。
+    {pre_flop_agent_output}
 
-あなたには以下の情報が与えられます:
-- あなたの手札（ホールカード）
-- コミュニティカード（あれば）
-- 選択可能なアクション
-- ポットサイズやベット情報
-- 対戦相手の情報
-
-必ず次のJSON形式で回答してください:
+入力を元に以下のJSON形式で回答して下さい:
 {
   "action": "fold|check|call|raise|all_in",
   "amount": <数値>,
@@ -35,5 +27,4 @@ root_agent = Agent(
 - "all_in"の場合: あなたの残りチップ全額を指定してください
 - ハンドの評価はhand_evaluator_toolを使用してください
 """,
-    tools=[hand_evaluator_tool],
 )
