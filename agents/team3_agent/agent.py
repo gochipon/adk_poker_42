@@ -34,7 +34,7 @@ root_agent = Agent(
           -   MUST: **`calculate_position`** ツールを利用し，`Position`を決定します
               - `calculate_position` ツールには，"your_id"と"dealer_button"の値を渡します
               - 戻り値として`position`が返されます
-					-   MUST: `position` が "BB" 以外の場合 **`judge_preflop_range`** ツールを呼び出します
+					-   MUST:  **`judge_preflop_range`** ツールを呼び出します
 					    -   `judge_preflop_range` ツールには、"your_cards"と`position`を渡します。
           -   ツールが `True`（レンジ内）を返した場合、"raise"（レイズ）を選択してください。
           -   ツールが `False`（レンジ外）を返した場合、"fold"（フォールド）を選択してください。

@@ -144,6 +144,37 @@ YOKOSAWA_RANGE_DATA_2: Dict[str, Set[str]] = {
         "QJo", "QTo",
         # Offsuit Jacks
         "JTo"
+    },
+
+
+    # === BB ===
+    "BB": {
+        # Pairs
+        "AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
+        # Suited Aces
+        "AKs", "AQs", "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+        # Suited Kings
+        "KQs", "KJs", "KTs", "K9s", "K8s", "K7s", "K6s", "K5s",
+        # Suited Queens
+        "QJs", "QTs", "Q9s", "Q8s",
+        # Suited Jacks
+        "JTs", "J9s", "J8s", "J7s",
+        # Suited Tens
+        "T9s", "T8s",
+        # Suited Connectors
+        "98s", "97s",
+        "87s", "86s",
+        "76s", "75s",
+        "65s", "64s",
+        "54s",
+        # Offsuit Aces
+        "AKo", "AQo", "AJo", "ATo", "A9o", "A8o", "A7o", "A6o", "A5o",
+        # Offsuit Kings
+        "KQo", "KJo", "KTo", "K9o",
+        # Offsuit Queens
+        "QJo", "QTo",
+        # Offsuit Jacks
+        "JTo"
     }
 }
 
@@ -254,6 +285,35 @@ YOKOSAWA_RANGE_DATA: Dict[str, Set[str]] = {
     # === SB (Small Blind) ===
     # 約35-40%のレンジ (BTNより少しタイト。リンプ戦略や3bet戦略も多用されるが、ここではレイズのみ)
     "SB": {
+        # Pairs
+        "AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
+        # Suited Aces
+        "AKs", "AQs", "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+        # Suited Kings
+        "KQs", "KJs", "KTs", "K9s", "K8s", "K7s", "K6s", "K5s",
+        # Suited Queens
+        "QJs", "QTs", "Q9s", "Q8s",
+        # Suited Jacks
+        "JTs", "J9s", "J8s", "J7s",
+        # Suited Tens
+        "T9s", "T8s",
+        # Suited Connectors
+        "98s", "97s",
+        "87s", "86s",
+        "76s", "75s",
+        "65s", "64s",
+        "54s",
+        # Offsuit Aces
+        "AKo", "AQo", "AJo", "ATo", "A9o", "A8o", "A7o", "A6o", "A5o",
+        # Offsuit Kings
+        "KQo", "KJo", "KTo", "K9o",
+        # Offsuit Queens
+        "QJo", "QTo",
+        # Offsuit Jacks
+        "JTo"
+    },
+    # === BB ===
+    "BB": {
         # Pairs
         "AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
         # Suited Aces
