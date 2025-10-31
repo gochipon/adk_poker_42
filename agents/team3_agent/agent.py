@@ -1,5 +1,5 @@
 from google.adk.agents import Agent
-from .tools.judge_preflop_range import judge_preflop_range
+from .tools.judge_preflop_range import judge_preflop_range, calculate_position
 from .agents.action_agent import action_agent
 
 root_agent = Agent(
@@ -20,11 +20,23 @@ root_agent = Agent(
         **意思決定プロセス:**
 
         1.  **プリフロップのオープン判断 (最優先):**
-            -   もし現在がプリフロップ（コミュニティカードが0枚）で、かつ `is_open_action` が `True`（つまり、あなたがオープンレイズする状況）の場合：
-            -   あなたは **`judge_preflop_range`** ツールを **必ず** 呼び出してください。
-            -   `judge_preflop_range` ツールには、あなたの `hand`（手札）と `position`（ポジション）を渡します。
-            -   ツールが `True`（レンジ内）を返した場合、"raise"（レイズ）を選択してください。
-            -   ツールが `False`（レンジ外）を返した場合、"fold"（フォールド）を選択してください。
+            -   もし現在がプリフロップ（`community` が空）で、かつ `is_open_action` が `True`（つまり、あなたがオープンレイズする状況）の場合：
+            -   **ステップA: ポジションを計算します。**
+                -   `num_players` を `len(players) + 1` で計算します（自分を含む）。
+                -   `calculate_position` ツールを `your_id`, `dealer_button`, `num_players` で呼び出します。
+            -   **ステップB: ポジションに基づいて判定します。**
+                -   計算結果（`position`）が "UTG", "MP", "CO", "BTN", "SB" のいずれかの場合：
+                    -   `your_cards` を `judge_preflop_range` が受け入れ可能な形式に **あなた自身で変換** します。
+                        - 例1: `["A♥", "K♠"]` -> ランクは "A" と "K"。スートが異なるため "AKo" とします。
+                        - 例2: `["T♦", "T♣"]` -> ランクは "T" と "T"。ペアなので "TT" とします。
+                        - 例3: `["Q♥", "J♥"]` -> ランクは "Q" と "J"。スートが同じため "QJs" とします。
+                    -   この変換した `hand` 文字列と、計算された `position` を使って `judge_preflop_range` ツールを呼び出します。
+                    -   ツールが `True`（レンジ内）を返した場合、"raise"（レイズ）を選択してください。
+                    -   ツールが `False`（レンジ外）を返した場合、"fold"（フォールド）を選択してください。
+                    -   計算結果が "BB" の場合：
+                        -   "BB" はオープン状況にはなりません。これはエラーではなく、チェック（`to_call` が0）またはコール/レイズ/フォールドの判断（`to_call` > 0）を行うため、ステップ2に進んでください。
+                    -   計算結果が `None` の場合（例: 5-maxではない）：
+                        -   ツールが使えないため、ステップ2に進んでください。
 
         2.  **その他の状況:**
             -   上記以外の状況（フロップ以降、またはプリフロップで誰かがすでに参加している場合）では、ツールは使用せず、GTO（ゲーム理論最適戦略）と状況に基づき、最適なアクション（fold, check, call, raise, all_in）を決定してください。
@@ -47,6 +59,6 @@ root_agent = Agent(
         初心者がわかるように専門用語には解説を加えてください
 				必ずaction_agentを実行してください""",
 
-  tools = [judge_preflop_range],
+  tools = [judge_preflop_range, calculate_position],
 	sub_agents = [action_agent]
 )
