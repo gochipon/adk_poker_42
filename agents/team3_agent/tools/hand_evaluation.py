@@ -114,7 +114,7 @@ def hand_evaluation(your_cards: list[str], community_cards: Optional[list[str]] 
 	"""
 	from itertools import combinations
 	from treys import Card as TCard, Evaluator as TEvaluator
-	from poker.evaluator import HandEvaluator as localEvaluator, HandResult as LocalHandResult, HandRank as LocalHandRank
+	from .hand_evaluator_utils import HandEvaluator as LocalEvaluator, HandResult as LocalHandResult, HandRank as LocalHandRank, Card as LocalCard, Suit as LocalSuit
 
 	community_cards = community_cards or []
 
@@ -143,11 +143,8 @@ def hand_evaluation(your_cards: list[str], community_cards: Optional[list[str]] 
 		else:
 			weaker += 1
 
-	# 最強 5 枚とキッカーは既存 Evaluator を利用（表示用の詳細を取得）
-	# 既存 Card クラスの文字列化を活用するため、ここでは your_cards/board の元文字列をそのまま返す
-	# 評価はローカル Evaluator に任せる
-	from poker.game_models import Card as GCard, Suit as GSuit
-	def _parse_game_card(s: str) -> GCard:
+	# 最強 5 枚とキッカーはローカル Evaluator を利用（表示用の詳細を取得）
+	def _parse_local_card(s: str) -> LocalCard:
 		text = s.strip()
 		# ランク
 		if text.upper().startswith("10"):
@@ -163,19 +160,19 @@ def hand_evaluation(your_cards: list[str], community_cards: Optional[list[str]] 
 			suit_part = text[1:]
 		# スート
 		s_map = {
-			"♠": GSuit.SPADES,
-			"♣": GSuit.CLUBS,
-			"♦": GSuit.DIAMONDS,
-			"♥": GSuit.HEARTS,
-			"❤": GSuit.HEARTS,
-			"S": GSuit.SPADES,
-			"C": GSuit.CLUBS,
-			"D": GSuit.DIAMONDS,
-			"H": GSuit.HEARTS,
-			"s": GSuit.SPADES,
-			"c": GSuit.CLUBS,
-			"d": GSuit.DIAMONDS,
-			"h": GSuit.HEARTS,
+			"♠": LocalSuit.SPADES,
+			"♣": LocalSuit.CLUBS,
+			"♦": LocalSuit.DIAMONDS,
+			"♥": LocalSuit.HEARTS,
+			"❤": LocalSuit.HEARTS,
+			"S": LocalSuit.SPADES,
+			"C": LocalSuit.CLUBS,
+			"D": LocalSuit.DIAMONDS,
+			"H": LocalSuit.HEARTS,
+			"s": LocalSuit.SPADES,
+			"c": LocalSuit.CLUBS,
+			"d": LocalSuit.DIAMONDS,
+			"h": LocalSuit.HEARTS,
 		}
 		if not suit_part:
 			raise ValueError(f"Invalid suit in card: {s}")
@@ -185,12 +182,12 @@ def hand_evaluation(your_cards: list[str], community_cards: Optional[list[str]] 
 			sym = suit_part[0]
 		if sym not in s_map:
 			raise ValueError(f"Invalid suit in card: {s}")
-		return GCard(rank, s_map[sym])
+		return LocalCard(rank, s_map[sym])
 
 	try:
-		local_hole = [_parse_game_card(c) for c in your_cards]
-		local_board = [_parse_game_card(c) for c in community_cards]
-		local_result: LocalHandResult = localEvaluator.evaluate_hand(local_hole, local_board)
+		local_hole = [_parse_local_card(c) for c in your_cards]
+		local_board = [_parse_local_card(c) for c in community_cards]
+		local_result: LocalHandResult = LocalEvaluator.evaluate_hand(local_hole, local_board)
 	except Exception:
 		# フォールバック：最強 5 枚やキッカーが取得できない場合は空にする
 		local_result = None
