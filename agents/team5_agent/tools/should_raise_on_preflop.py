@@ -1,7 +1,7 @@
 from google.adk.tools.tool_context import ToolContext
 from ..agents.preflop_range import range_0_open, range_1_open, range_3_open, range_4_open,range_3bet, range_4bet, range_5bet
 
-from typing import List
+from typing import List, Dict, Any
 
 def should_raise_on_preflop(cards: List[str], position: int, raise_cnt: int, tool_context: ToolContext) -> bool:
     """
@@ -15,7 +15,16 @@ def should_raise_on_preflop(cards: List[str], position: int, raise_cnt: int, too
 
     hand_range = get_preflop_hand_range(position, raise_cnt, tool_context)
 
-    return hand_range[(parse_card(cards[0]), parse_card(cards[1]))]
+    pair = (parse_card(cards[0]), parse_card(cards[1]))
+    res = False
+    for d in hand_range['hand_range']:
+        if not isinstance(d, dict):
+            continue
+        for key, value in d.items():
+            if key == pair:
+                res = value
+                break
+    return res
 
 def parse_card(token):
     # 例: 'A♥', '10♣', 'T♣', 'AH', 'Ts', 'qd' などを受け付ける
@@ -58,7 +67,7 @@ def parse_card(token):
 
     return rank_to_num[rank_key], suit
 
-def get_preflop_hand_range(position: int, raise_cnt: int, tool_context: ToolContext) -> dict:
+def get_preflop_hand_range(position: int, raise_cnt: int, tool_context: ToolContext) -> Dict[str, Any]:
     """Retrieves hand range, converts based on session state."""
     print(f"--- Tool: get_preflop_hand_range called for position {position} ---")
 
@@ -77,6 +86,12 @@ def get_preflop_hand_range(position: int, raise_cnt: int, tool_context: ToolCont
 
     if raise_cnt >= 1:
         tool_context.state["hand_range"] = nrp_hand_range_db[raise_cnt]
+        result = {
+            "status": "success",
+            "hand_range": tool_context.state["hand_range"],
+            "message": f"Hand range for raise count {raise_cnt} retrieved.",
+        }
+        return result
     elif position in srp_hand_range_db:
         tool_context.state["hand_range"] = srp_hand_range_db[position]
 
@@ -88,5 +103,4 @@ def get_preflop_hand_range(position: int, raise_cnt: int, tool_context: ToolCont
         # Handle position not found
         error_msg = f"Sorry, I don't have hand range information for position {position}."
         print(f"--- Tool: Position '{position}' not found. ---")
-        return {"status": "error", "error_message": error_msg}
-
+        return {"status": "error", "hand_range": [], "error_message": error_msg}
