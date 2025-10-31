@@ -55,7 +55,7 @@ def action_decision(game_state: dict, call_amount: float, pot_after_call: float,
     lossRate =  1 - equity
     expected_value = equity * pot_after_call - lossRate * call_amount
 
-    # your_chips = game_state["your_chips"]
+    your_chips = game_state.get("your_chips", 0)
     to_call = game_state["to_call"]
     pot = game_state["pot"]
     phase = game_state.get("phase", "flop").lower()
@@ -76,12 +76,18 @@ def action_decision(game_state: dict, call_amount: float, pot_after_call: float,
             # バリュー: 2/3ポット
             bet_size = max(1, int(pot * 0.66))
             reasoning = f"期待値が高い（{expected_value:.2f}(ポットに対して{valueRate:.2f}%）ため、2/3ポットでベットします。ベット額: {bet_size}"
+            if bet_size >= your_chips and your_chips > 0:
+                reasoning = f"{reasoning}。所持チップを超えるためオールインします。額: {your_chips}"
+                return {"action": "all-in", "amount": your_chips, "reasoning": reasoning}
             return {"action": "raise", "amount": bet_size, "reasoning": reasoning}
 
         if semi_thresh_low <= equity < semi_thresh_high and phase in ("flop", "turn"):
             # セミブラフ: 1/2ポット
             bet_size = max(1, int(pot * 0.50))
             reasoning = f"期待値が見込める（{expected_value:.2f}(ポットに対して{valueRate:.2f}%）ため、1/2ポットでセミブラフします。ベット額: {bet_size}"
+            if bet_size >= your_chips and your_chips > 0:
+                reasoning = f"{reasoning}。所持チップを超えるためオールインします。額: {your_chips}"
+                return {"action": "all-in", "amount": your_chips, "reasoning": reasoning}
             return {"action": "raise", "amount": bet_size, "reasoning": reasoning}
 
         reasoning = f"期待値が低い（{expected_value:.2f}(ポットに対して{valueRate:.2f}%）ため、チェックします"
@@ -94,9 +100,15 @@ def action_decision(game_state: dict, call_amount: float, pot_after_call: float,
         if equity >= strong_thresh:
             raise_amount = max(1, int(to_call * 2.5))
             reasoning = f"期待値が高い（{expected_value:.2f}(ポットに対して{valueRate:.2f}%）ため、2.5倍でバリューレイズします。レイズ額: {raise_amount}"
+            if raise_amount >= your_chips and your_chips > 0:
+                reasoning = f"{reasoning}。所持チップを超えるためオールインします。額: {your_chips}"
+                return {"action": "all-in", "amount": your_chips, "reasoning": reasoning}
             return {"action": "raise", "amount": raise_amount, "reasoning": reasoning}
 
         reasoning = f"ポットオッズを満たしており（{expected_value:.2f}(ポットに対して{valueRate:.2f}%）、コールが妥当と判断。コール額: {to_call}"
+        if to_call > your_chips and your_chips > 0:
+            reasoning = f"{reasoning}。コール額が所持チップ({your_chips})を超えるためオールインします。額: {your_chips}"
+            return {"action": "all-in", "amount": your_chips, "reasoning": reasoning}
         return {"action": "call", "amount": to_call, "reasoning": reasoning}
 
     # しきい値未満 → フォールド
