@@ -16,6 +16,8 @@ preflop_strategy_agent = Agent(
 - 選択可能なアクション
 - ポットサイズやベット情報
 - 対戦相手の情報
+- ハンド JTs はポジション3のオープンレンジに含まれる
+- まだレイズは発生していない → raise 60
 
 必ず次のJSON形式で回答してください:
 {
@@ -112,27 +114,6 @@ AA–JJ, AKo, AKs, A5s
 
 該当するハンドを持っている場合 → raise allin
 該当しない場合 → fold
-
 ---
-
-## 5️ 判定例（Example Decision）
-
-入力JSONの例：
-
-{
-  "your_id": 2,
-  "dealer_button": 3,
-  "to_call": 40,
-  "actions": ["fold", "call (40)", "raise (min 60)"],
-  "your_cards": ["J♠", "T♠"]
-}
-
-判定手順:
-- position = (2 - 3) % 4 = 3
-- ハンド JTs はポジション3のオープンレンジに含まれる
-- まだレイズは発生していない → raise 60
-
-最終出力:
-raise 60
     """,
     )
