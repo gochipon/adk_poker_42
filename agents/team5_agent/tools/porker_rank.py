@@ -99,12 +99,67 @@ def rank_of_five_card(card_list):
 
 def rank_of_any_card(card_list):
     """
-    5〜7枚のカードを受け取り、最強役を自動判定。
-    フロップ（5枚）、ターン（6枚）、リバー（7枚）すべて対応。
+    2〜7枚のカードを受け取り、可能な役を判定する。
+    - 2枚 → 簡易プリフロップ評価（ペア・スーテッド・コネクターなど）
+    - 5〜7枚 → 通常の役判定（フロップ以降）
     """
-    if len(card_list) < 5:
-        raise ValueError("カードは最低5枚必要です。")
+    if len(card_list) < 2:
+        raise ValueError("カードは最低2枚必要です。")
 
+    # 2枚だけなら簡易評価
+    if len(card_list) == 2:
+        rank_to_num = {'A': 14, 'K': 13, 'Q': 12, 'J': 11,
+                       'T': 10, '10': 10, '9': 9, '8': 8, '7': 7,
+                       '6': 6, '5': 5, '4': 4, '3': 3, '2': 2}
+        unicode_suits = {'♠': 'S', '♥': 'H', '♦': 'D', '♣': 'C'}
+        ascii_suits = {'S': 'S', 'H': 'H', 'D': 'D', 'C': 'C',
+                       's': 'S', 'h': 'H', 'd': 'D', 'c': 'C'}
+
+        def parse_card(token):
+            suit_char = token[-1]
+            if suit_char in unicode_suits:
+                suit = unicode_suits[suit_char]
+                rank_str = token[:-1]
+            elif suit_char in ascii_suits:
+                suit = ascii_suits[suit_char]
+                rank_str = token[:-1]
+            else:
+                raise ValueError(f"不正なカード表記: {token}")
+            rank_str = rank_str.upper()
+            if rank_str == '10':
+                rank_key = '10'
+            elif len(rank_str) == 1 and rank_str in rank_to_num:
+                rank_key = rank_str
+            else:
+                raise ValueError(f"不正なランク表記: {rank_str}")
+            return rank_to_num[rank_key], suit
+
+        parsed = [parse_card(c) for c in card_list]
+        ranks = [r for r, _ in parsed]
+        suits = [s for _, s in parsed]
+
+        same_suit = suits[0] == suits[1]
+        diff = abs(ranks[0] - ranks[1])
+        if ranks[0] == ranks[1]:
+            text = "one pair"
+            rank_num = 2
+        elif same_suit and diff == 1:
+            text = "suited connector"
+            rank_num = 1.5
+        elif same_suit:
+            text = "suited"
+            rank_num = 1.2
+        elif diff == 1:
+            text = "connector"
+            rank_num = 1.1
+        else:
+            text = "high card"
+            rank_num = 1.0
+
+        score = rank_num * 100 + sum(ranks)
+        return card_list, text, score
+
+    # 5枚以上は既存のロジック
     best_score = 0
     best_five = None
     best_text = None
