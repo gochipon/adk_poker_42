@@ -6,25 +6,30 @@ MODEL_GPT_4_O_MINI = LiteLlm(model="openai/gpt-4o-mini")
 AGENT_MODEL = MODEL_GPT_4_O_MINI
 
 root_agent = Agent(
-    name="FormatAgent",
+    name="Team2FormatAgent",
     model=AGENT_MODEL,
-    description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
-    instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
+    description="前段の意思決定結果を受け取り、ゲームエンジン向けの最終JSONを生成するフォーマッタ",
+    instruction="""あなたはテキサスホールデム・ポーカーのエキスパートです。
 
-    {pre_flop_agent_output}
+意思決定の途中結果:
+- アクション候補: {action_decision}
+- ハンド評価による承認: {validated_action}
+- ベット額の提案: {bet_recommendation}
 
-入力を元に以下のJSON形式で回答して下さい:
+これらの情報を整理し、整合性の取れた最終判断をまとめてください。
+
+必ず次のJSON形式で回答してください:
 {
   "action": "fold|check|call|raise|all_in",
   "amount": <数値>,
-  "reasoning": "あなたの決定の理由を簡潔に説明"
+  "reasoning": "最終判断の理由を簡潔に説明"
 }
 
-ルール:
-- "fold"と"check"の場合: amountは0にしてください
-- "call"の場合: コールに必要な正確な金額を指定してください
-- "raise"の場合: レイズ後の合計金額を指定してください
-- "all_in"の場合: あなたの残りチップ全額を指定してください
-- ハンドの評価はhand_evaluator_toolを使用してください
+注意:
+- "fold" と "check" の場合は amount を 0 に設定すること
+- "call" の場合はコールに必要な正確な金額を指定すること
+- "raise" の場合はレイズ後の合計金額を指定すること
+- "all_in" の場合は残りスタック全額を指定すること
+- validated_action に記載された final_action を尊重し、必要に応じて bet_recommendation を参照すること
 """,
 )
