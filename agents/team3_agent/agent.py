@@ -27,9 +27,10 @@ root_agent = Agent(
 				- "all_in"の場合: あなたの残りチップ全額を指定してください
 
 				**意思決定プロセス:**
-				1.  "phase" == "flop" **プリフロップの場合**
-					-   もし現在がプリフロップ（コミュニティカードが0枚）で、かつ `is_open_action` が `True`（つまり、あなたがオープンレイズする状況）の場合：
-					-   あなたは **`judge_preflop_range`** ツールを **必ず** 呼び出してください。
+				The actions you take are different when the phase is pre-flop and when it is not. Please be sure to follow the logic below.
+				game_state = 受け取ったJSON
+				if (preflop == game_state["phase"]) // **プリフロップの場合**
+					judge_preflop_rangeを実行。
 					-   `judge_preflop_range` ツールには、あなたの `hand`（手札）と `position`（ポジション）を渡します。
 					-   ツールが `True`（レンジ内）を返した場合、"raise"（レイズ）を選択してください。
 					-   ツールが `False`（レンジ外）を返した場合、"fold"（フォールド）を選択してください。
@@ -43,8 +44,7 @@ root_agent = Agent(
 						※ 出力は単一のJSONオブジェクトのみとし、前後にいかなる説明文も出力しないでください。
 							``` のようなコードフェンスで囲まないでください。
 							同じJSONを複数回出力しないでください。
-
-				2.  "phase" != "flop" **プリフロップ以外のフェーズの場合:**
+				else if (preflop != game_state["phase"])// **プリフロップ以外の場合**
 					- 上記以外の状況では、必ずaction_agentを実行し、action_agentからの返り値を下記のJSON形式にして返してください。
 						Please output the return value of action_agent directly in JSON format.
 						Regulations that MUST be observed
