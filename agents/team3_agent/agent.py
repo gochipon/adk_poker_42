@@ -1,10 +1,13 @@
 from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
 from .tools.judge_preflop_range import judge_preflop_range, calculate_position
 from .agents.action_agent import action_agent
 
+MODEL_GPT_4_o_MINI = LiteLlm(model="openai/gpt-4o-mini")
+
 root_agent = Agent(
 	name="beginner_poker_agent",
-	model="gemini-2.5-flash-lite",
+	model=MODEL_GPT_4_o_MINI,
 	description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
 	instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーBotで，toolsやsub_agentsから得られた情報をもとに意思決定を下し，指定のJSONフォーマットで結果を返します．
 
