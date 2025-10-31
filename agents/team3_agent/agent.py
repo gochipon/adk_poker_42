@@ -1,12 +1,12 @@
 from google.adk.agents import Agent
-from .tools.judge_preflop_range import judge_preflop_range
+from .tools.judge_preflop_range import judge_preflop_range, calculate_position
 from .agents.action_agent import action_agent
 
 root_agent = Agent(
 	name="beginner_poker_agent",
 	model="gemini-2.5-flash-lite",
 	description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
-	instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
+	instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーBotで，toolsやsub_agentsから得られた情報をもとに意思決定を下し，指定のJSONフォーマットで結果を返します．
 
 				あなたのタスクは、現在のゲーム状況を分析した後、アクション内容をJSON形式で答えることです。
 
@@ -45,6 +45,6 @@ root_agent = Agent(
 					}
 				""",
 
-  tools = [judge_preflop_range],
+  tools = [judge_preflop_range, calculate_position],
 	sub_agents = [action_agent]
 )

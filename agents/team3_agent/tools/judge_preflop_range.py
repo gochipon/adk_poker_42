@@ -137,6 +137,81 @@ YOKOSAWA_RANGE_DATA: Dict[str, Set[str]] = {
     }
 }
 
+# --- 可変人数 (2-6人) 対応のポジション計算 ---
+
+def calculate_position(
+    your_id: int, 
+    dealer_button_id: int,
+    num_players: int
+) -> Optional[Literal["UTG", "MP", "CO", "BTN", "SB", "BB"]]:
+    """
+    Calculates the poker position based on player ID, dealer button ID,
+    and the total number of players (2-max to 6-max).
+
+    
+    
+
+    Args:
+        your_id (int): Your player ID.
+        dealer_button_id (int): The ID of the player on the dealer button.
+        num_players (int): The total number of players (supports 2, 3, 4, 5, or 6).
+
+    Returns:
+        Optional[Literal["UTG", "MP", "CO", "BTN", "SB", "BB"]]:
+            The calculated position as a string.
+            Returns None if num_players is not between 2 and 6.
+    """
+    
+    # サポート範囲を 2-6 に変更
+    if num_players < 2 or num_players > 6:
+        print(f"Warning: Position calculation supports 2-6 players. Received {num_players}.")
+        return None
+        
+    try:
+        # (自分のID - ボタンID + 人数) % 人数
+        relative_position = (your_id - dealer_button_id + num_players) % num_players
+        
+        # --- 共通ポジション (BTN) ---
+        # 2-max の BTN は SB (Small Blind) としても扱われる
+        if relative_position == 0: return "BTN" 
+        
+        # --- 2-max (Heads-Up) のロジック ---
+        if num_players == 2:
+            if relative_position == 1: return "BB" # Big Blind
+            return None # Logic error (0, 1 以外はありえない)
+
+        # --- 3-max 以上の共通ポジション (SB, BB) ---
+        if relative_position == 1: return "SB"
+        if relative_position == 2: return "BB"
+        
+        # 3-max (BTN, SB, BBのみ)
+        if num_players == 3:
+            # relative_position 0, 1, 2 以外はありえない
+            return None # Logic error if reached
+            
+        # 4-max
+        if num_players == 4:
+            if relative_position == 3: return "CO" # (実質 UTG/MP)
+            
+        # 5-max
+        if num_players == 5:
+            if relative_position == 3: return "MP"
+            if relative_position == 4: return "CO"
+            
+        # 6-max
+        if num_players == 6:
+            if relative_position == 3: return "UTG"
+            if relative_position == 4: return "MP"
+            if relative_position == 5: return "CO"
+            
+        # num_players が 2-6 の範囲内だが、relative_position が
+        # 予期せぬ値になった場合 (論理的に到達不能のはず)
+        return None 
+        
+    except Exception as e:
+        print(f"Error calculating position: {e}")
+        return None
+
 def _normalize_hand_notation(hand: str) -> str:
     """
     ポーカーハンドの様々な表記 ('AsKd', 'AKs', 'AK', 'KAs', 'kk', 'jqs') を
