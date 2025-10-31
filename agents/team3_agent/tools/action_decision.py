@@ -11,11 +11,14 @@ def action_decision(expected_value:  float, game_state: dict) -> dict[str, Any]:
 			"to_call": コールに必要な追加額 (0の場合はチェック/ベットが可能)(例: 20)
 
     Returns:
-        dict: 決定されたアクション、額、理由。
+        dict: 決定されたアクション、額、理由を記述したJSON
+		{
             "action": str ("fold", "call", "raise", "check")
             "amount": int (チップ額)
             "reasoning": str (決定理由: 決定理由には、必ず期待値(expected_value)を入れて下さい)
-    """
+		}
+
+	"""
 
     your_chips = game_state["your_chips"]
     to_call = game_state["to_call"]
