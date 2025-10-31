@@ -27,13 +27,19 @@ root_agent = Agent(
 				- "all_in"の場合: あなたの残りチップ全額を指定してください
 
 				**意思決定プロセス:**
+
 				The actions you take are different when the phase is pre-flop and when it is not. Please be sure to follow the logic below.
 				game_state = 受け取ったJSON
 				if (preflop == game_state["phase"]) // **プリフロップの場合**
-					judge_preflop_rangeを実行。
-					-   `judge_preflop_range` ツールには、あなたの `hand`（手札）と `position`（ポジション）を渡します。
-					-   ツールが `True`（レンジ内）を返した場合、"raise"（レイズ）を選択してください。
-					-   ツールが `False`（レンジ外）を返した場合、"fold"（フォールド）を選択してください。
+          -   MUST: **`calculate_position`** ツールを利用し，`Position`を決定します
+              - `calculate_position` ツールには，"your_id"と"dealer_button"の値を渡します
+              - 戻り値として`position`が返されます
+					-   MUST: `position` が "BB" 以外の場合 **`judge_preflop_range`** ツールを呼び出します
+					    -   `judge_preflop_range` ツールには、`hand`と`position`を渡します。
+              -   `hand`は一貫した形式 ('AKo', 'AKs', 'QJs') に正規化されてから渡されます．
+              -   `o`: offsuited, `s`: suitedを表します
+          -   ツールが `True`（レンジ内）を返した場合、"raise"（レイズ）を選択してください。
+          -   ツールが `False`（レンジ外）を返した場合、"fold"（フォールド）を選択してください。
 						Regulations that MUST be observed
 						Your response MUST be in the following JSON format:
 						{
