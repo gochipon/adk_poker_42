@@ -58,64 +58,101 @@ def action_decision(game_state: dict, call_amount: float, pot_after_call: float,
     your_chips = game_state["your_chips"]
     to_call = game_state["to_call"]
     pot = game_state["pot"]
-    evRate = expected_value / your_chips * 100
+
+    valueRate = expected_value / pot * 100
 
     # 期待値に応じてaction決定
-    if evRate > 10:
+    if valueRate > 90:
         if to_call == 0:
-            # ベット（チップの1/1.5）
+            # ベット（pot分）
             action = "raise"
-            amount = pot // 1.5
-            reasoning = f"期待値が高い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、ベットします。ベット額: {amount}"
+            amount = pot
+            reasoning = f"期待値が高い（{expected_value}(ポットに対して{valueRate:.2f}%）ため、ベットします。ベット額: {amount}"
         else:
             # レイズ（3倍）
             action = "raise"
             amount = to_call * 3
-            reasoning = f"期待値が高い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、3倍レイズします。レイズ額: {amount}"
-    elif evRate > 5:
+            reasoning = f"期待値が高い（{expected_value}(ポットに対して{valueRate:.2f}%）ため、3倍レイズします。レイズ額: {amount}"
+    elif valueRate > 70:
         if to_call == 0:
-            # ベット（チップの1/2）
+            # ベット（potの1/2）
             action = "raise"
             amount = pot // 2
-            reasoning = f"期待値が中程度（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、ベットします。ベット額: {amount}"
+            reasoning = f"期待値が中程度（{expected_value}(ポットに対して{valueRate:.2f}%）ため、ベットします。ベット額: {amount}"
         else:
             # コール
             action = "call"
             amount = to_call
-            reasoning = f"期待値が中程度（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、コールします。コール額: {amount}"
-    elif evRate >= 2:
+            reasoning = f"期待値が中程度（{expected_value}(ポットに対して{valueRate:.2f}%）ため、コールします。コール額: {amount}"
+    elif valueRate > 50:
         if to_call == 0:
-            # ベット（チップの1/3）
+            # ベット（potの1/3）
             action = "raise"
             amount = pot // 3
-            reasoning = f"期待値がそこそこ（{expected_value}(自分のスタックに対して{evRate:.2f}%）のため、ベットします。ベット額: {amount}"
+            reasoning = f"期待値がそこそこ（{expected_value}(ポットに対して{valueRate:.2f}%）ため、ベットします。ベット額: {amount}"
         else:
             # コール
             action = "call"
             amount = to_call
-            reasoning = f"期待値がそこそこ（{expected_value}(自分のスタックに対して{evRate:.2f}%）のため、コールします。コール額: {amount}"
-    elif evRate > 1:
+            reasoning = f"期待値がそこそこ（{expected_value}(ポットに対して{valueRate:.2f}%）ため、コールします。コール額: {amount}"
+    elif valueRate > 30:
         if to_call == 0:
             # チェック
             action = "check"
             amount = 0
-            reasoning = f"期待値が低い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、チェックします"
+            reasoning = f"期待値が低い（{expected_value}(ポットに対して{valueRate:.2f}%）ため、チェックします"
         else:
             # コール
             action = "call"
             amount = to_call
-            reasoning = f"期待値が低い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、コールします。コール額: {amount}"
+            reasoning = f"期待値が低い（{expected_value}(ポットに対して{valueRate:.2f}%）ため、コールします。コール額: {amount}"
     else:
-        if to_call == 0:
-            # チェック
-            action = "check"
-            amount = 0
-            reasoning = f"期待値が{expected_value}(自分のスタックに対して{evRate:.2f}%で、マイナスなのでチェック"
-        else:
-            # フォールド
-            action = "fold"
-            amount = 0
-            reasoning = f"期待値が{expected_value}(自分のスタックに対して{evRate:.2f}%で、マイナスなのでフォールド"
+        # フォールド
+        action = "fold"
+        amount = 0
+        reasoning = f"期待値が{expected_value}(ポットに対して{valueRate:.2f}%で、マイナスなのでフォールド"
+
+
+    # evRate = expected_value / your_chips * 100
+    # # 期待値に応じてaction決定
+    # if evRate > 10:
+    #     if to_call == 0:
+    #         # ベット（チップの1/2）
+    #         action = "bet"
+    #         amount = pot // 2
+    #         reasoning = f"期待値が高い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、ベットします。ベット額: {amount}"
+    #     else:
+    #         # レイズ（3倍）
+    #         action = "raise"
+    #         amount = to_call * 3
+    #         reasoning = f"期待値が高い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、3倍レイズします。レイズ額: {amount}"
+    # elif evRate > 5:
+    #     if to_call == 0:
+    #         # ベット（チップの1/3）
+    #         action = "bet"
+    #         amount = pot // 3
+    #         reasoning = f"期待値が中程度（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、ベットします。ベット額: {amount}"
+    #     else:
+    #         # コール
+    #         action = "call"
+    #         amount = to_call
+    #         reasoning = f"期待値が中程度（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、コールします。コール額: {amount}"
+    # elif evRate > 2:
+    #     if to_call == 0:
+    #         # チェック
+    #         action = "check"
+    #         amount = 0
+    #         reasoning = f"期待値が低い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、チェックします"
+    #     else:
+    #         # コール
+    #         action = "call"
+    #         amount = to_call
+    #         reasoning = f"期待値が低い（{expected_value}(自分のスタックに対して{evRate:.2f}%）ため、コールします。コール額: {amount}"
+    # else:
+    #     # フォールド
+    #     action = "fold"
+    #     amount = 0
+    #     reasoning = f"期待値が{expected_value}(自分のスタックに対して{evRate:.2f}%で、マイナスなのでフォールド"
 
     return {
         "action": action,
