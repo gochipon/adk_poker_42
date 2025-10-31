@@ -1,5 +1,6 @@
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
+from team5_agent.agents.poker_rank_agent import hand_rank_evaluator_agent
 
 AGENT_MODEL = LiteLlm(model="openai/gpt-4o-mini")
 
@@ -8,6 +9,7 @@ root_agent = Agent(
     model=AGENT_MODEL,
     description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
     instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
+
 あなたのタスクは、現在のゲーム状況を分析し、最善の意思決定を下すことです。
 
 あなたには以下の情報が与えられます:
@@ -26,6 +28,7 @@ root_agent = Agent(
 - "call"の場合: コールに必要な正確な金額を指定してください
 - "raise"の場合: レイズ後の合計金額を指定してください
 - "all_in"の場合: あなたの残りチップ全額を指定してください
+- 必ず hand_rank_evaluator_agent を呼び出してから思考してください
 
 ---
 
@@ -132,4 +135,5 @@ AA–JJ, AKo, AKs, A5s
 最終出力:
 raise 60
 """,
+  sub_agents=[hand_rank_evaluator_agent]
 )
