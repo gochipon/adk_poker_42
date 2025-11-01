@@ -34,7 +34,6 @@ services:
       - PYTHONPATH=/app
     volumes:
       - .:/app
-      - /app/.venv
       - ./logs:/app/logs
       - ./results:/app/results
       - ./db:/app/db
