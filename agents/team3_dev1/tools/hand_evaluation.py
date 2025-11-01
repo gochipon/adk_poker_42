@@ -118,6 +118,12 @@ def hand_evaluation(your_cards: list[str], community_cards: Optional[list[str]] 
 
 	community_cards = community_cards or []
 
+	if len(community_cards) < 3:
+		return {
+			"error": "プリフロップではhand_evaluationは使用できません",
+			"message": "コミュニティカードが3枚以上必要です（flop以降で使用してください）"
+		}
+
 	# 入力を treys 形式へ
 	try:
 		treys_hero = [TCard.new(_to_treys_str(c)) for c in your_cards]
