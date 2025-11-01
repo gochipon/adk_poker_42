@@ -1,0 +1,67 @@
+from google.adk.agents import Agent, SequentialAgent
+from google.adk.models.lite_llm import LiteLlm
+# from .tools.judge_preflop_range import judge_preflop_range, calculate_position
+from .agents.action_agent import action_agent
+
+MODEL_GPT_4_o_MINI = LiteLlm(model="openai/gpt-4o-mini")
+
+strategy_agent = Agent(
+	name="poker_strategy_analyzer",
+	model=MODEL_GPT_4_o_MINI,
+	description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
+	instruction="""
+				あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
+				タイト・アグレッシブ（Tight-Aggressive: TAG）戦略で、損失の最小化と勝率の高い状況での利益最大化を目的として戦略を考えてください。
+
+				あなたには以下の情報が与えられます:
+				- あなたの手札（ホールカード）
+				- コミュニティカード（あれば）
+				- 選択可能なアクション
+				- ポットサイズやベット情報
+				- 対戦相手の情報
+
+				さらに、action_agentを使用して期待値とそれにともなう推奨アクションを分析できます。
+
+				これらの情報・結果から、以下の点を考慮しつつ戦略分析を行なってください:
+					- 「強い手札」では、積極的にレイズをしてください。レイズは、bet額の3倍を目安にしてください。
+					- 「弱い手札 + ポジション良」では、パッシブ（チェック/コール）
+					- 「損切り」の徹底
+
+				分析結果から、から推奨するアクション（fold/check/call/raise/all_in）と具体的な金額、そしてその戦略的理由を詳しく説明してください。
+				""",
+	sub_agents = [action_agent],
+	output_key="strategy_analysis",
+)
+
+json_formatter_agent = Agent(
+    name="poker_json_formatter",
+    model=MODEL_GPT_4_o_MINI,
+    description="ポーカーの戦略分析をJSON形式に整形するエキスパート",
+    instruction="""あなたは戦略分析結果を指定されたJSON形式に正確に変換する専門家です。
+
+					戦略分析結果: {strategy_analysis}
+
+					上記の戦略分析を基に、必ず次のJSON形式で正確に回答してください:
+					{
+					"action": "fold|check|call|raise|all_in",
+					"amount": <数値>,
+					"reasoning": "戦略分析から導出された決定と戦略的理由の詳細な説明"
+					}
+
+					ルール:
+					- "fold"と"check"の場合: amountは0にしてください
+					- "call"の場合: コールに必要な正確な金額を指定してください
+					- "raise"の場合: レイズ後の合計金額を指定してください
+					- "all_in"の場合: あなたの残りチップ全額を指定してください
+					- "call"や"raise"で指定/必要金額があなたの残りチップを超える場合: 自動的に"all_in"とし、amountは残りチップ全額にしてください
+					- reasoningには戦略分析の内容を要約して含めてください
+					- 必ずJSONの正確な構文で回答してください
+
+					戦略分析の内容を適切に解釈し、JSON形式で出力してください。
+				""",
+)
+
+root_agent = SequentialAgent(
+    name="poker_workflow_agent",
+    sub_agents=[strategy_agent, json_formatter_agent],
+)
