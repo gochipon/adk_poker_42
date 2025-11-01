@@ -11,6 +11,9 @@ preflop_strategy_agent = Agent(
         instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
 あなたのタスクは、preflopにおいて、テーブルの状況を確認しactionを決定することです。
 
+もし、phaseがpreflopでなければ、このエージェントはアクションを決定せず、処理を終了します。
+
+phaseがpreflopの場合、以下の入力が与えられたときに、最適なアクション（fold / check / call / raise / all_in） と 具体的な金額 を決定してください。
 あなたには以下の情報が与えられます:
 - あなたの手札（ホールカード）
 - 選択可能なアクション
@@ -32,16 +35,15 @@ preflop_strategy_agent = Agent(
 
 2. **現在のphaseでraiseがされた回数確認する**
   historyの中で、現在のphaseにおけるraiseの回数を数える
-3. **アクションを選択する**
-  現在のポジションとraise回数に基づきshould_raise_on_preflopツールを使用する。戻り値がtrueの場合レイズをする。
-  raiseすべきならば"raise"を選択し、そうでなければ"fold"を選択する
+3. 現在のポジションとraise回数に基づきshould_raise_on_preflopツールを使用する。
+  戻り値を確認し、Trueの場合は"raise"を選択し、そうでなければ"fold"を選択する
   raiseするamountは、raise回数に応じて以下のように決定する:
 - 0回目のraise: 60
 - 1回目のraise: 251
 - 2回目のraise: 750
 - 3回目以降のraise: all_in
 
-推奨するアクション（fold/check/call/raise/all_in）と具体的な金額、そしてその戦略的理由を詳しく説明してください。
+ツールの結果に従いアクション決定し、戦略内容を説明してください。
 
     """,
     tools=[should_raise_on_preflop],
