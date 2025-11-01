@@ -17,7 +17,7 @@ MODEL_GPT_4_O_MINI = LiteLlm(model="openai/gpt-4o-mini")
 AGENT_MODEL = MODEL_GPT_4_O_MINI
 
 root_agent = Agent(
-    name="agent_smith_7",
+    name="agent_smith_8",
     model=AGENT_MODEL,
     description="プリフロップ期待値(EV)とシミュレーションツールを用いて意思決定するテキサスホールデム・ポーカープレイヤー",
     # ↓ instruction を、あなたのルール（初心者向け解説）を含む形に更新
@@ -98,4 +98,5 @@ root_agent = Agent(
         calculate_postflop_ev,
         calculate_generic_ev,
     ],
+    output_key="agent_smith_8_final_decision",
 )

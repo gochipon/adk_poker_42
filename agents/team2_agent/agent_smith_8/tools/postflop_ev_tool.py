@@ -10,9 +10,29 @@ class PostflopEVTool:
     def __init__(self):
         self.evaluator = Evaluator()
 
+    def normalize_card(self, card_str):
+        """Unicode記号や"10"をtreys形式に正規化する（文字列として返す）"""
+        suit_map = {
+            '♥': 'h',
+            '♠': 's',
+            '♦': 'd',
+            '♣': 'c',
+        }
+
+        # Unicode記号を変換
+        for unicode_suit, treys_suit in suit_map.items():
+            if unicode_suit in card_str:
+                card_str = card_str.replace(unicode_suit, treys_suit)
+                break
+
+        # "10" を "T" に変換
+        card_str = card_str.replace('10', 'T')
+
+        return card_str
+
     def string_to_treys_card(self, card_str):
-        """ "As" や "Td" のような文字列を treys の Card オブジェクトに変換 """
-        return Card.new(card_str)
+        """ "As" や "Td" のような文字列、または "A♥" のようなUnicode記号を treys の Card オブジェクトに変換 """
+        return Card.new(self.normalize_card(card_str))
 
     def evaluate_hand(self, hole_cards_str, board_cards_str):
         """
@@ -28,10 +48,14 @@ class PostflopEVTool:
 
     def monte_carlo_win_rate(self, hole_cards, community_cards, num_opponents=1, trials=500):
         win, tie = 0, 0
-        
+
+        # 入力カードをtreys形式に正規化
+        hole_cards = [self.normalize_card(c) for c in hole_cards]
+        community_cards = [self.normalize_card(c) for c in community_cards]
+
         # treysが認識できる全カードの文字列リスト ("As", "Kc", ...)
         all_cards_str = [r+s for r in "23456789TJQKA" for s in "cdhs"]
-        
+
         used_cards_set = set(hole_cards + community_cards)
         deck_str = [c for c in all_cards_str if c not in used_cards_set]
 

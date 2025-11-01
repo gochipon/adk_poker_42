@@ -31,4 +31,5 @@ root_agent = Agent(
 - "all_in" の場合は残りスタック全額を指定すること
 - validated_action に記載された final_action を尊重し、必要に応じて bet_recommendation を参照すること
 """,
+output_key="agent_yuta_final_decision",
 )

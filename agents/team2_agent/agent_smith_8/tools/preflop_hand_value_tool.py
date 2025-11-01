@@ -12,12 +12,22 @@ class PreflopHandValueTool:
         }
 
     def canonical_form(self, cards):
-        # cards: ['Ah', 'Kd']
+        # cards: ['Ah', 'Kd'] or ['10h', 'Kd']
         ranks = {'2':2, '3':3, '4':4, '5':5, '6':6, '7':7,
-                 '8':8, '9':9, 'T':10, 'J':11, 'Q':12, 'K':13, 'A':14}
+                 '8':8, '9':9, 'T':10, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14}
         c1, c2 = cards
-        r1, s1 = c1[0], c1[1]
-        r2, s2 = c2[0], c2[1]
+
+        # Handle both '10' and 'T' formats
+        if c1.startswith('10'):
+            r1, s1 = 'T', c1[2]
+        else:
+            r1, s1 = c1[0], c1[1]
+
+        if c2.startswith('10'):
+            r2, s2 = 'T', c2[2]
+        else:
+            r2, s2 = c2[0], c2[1]
+
         suited = 's' if s1 == s2 else ''
         # 降順に並べる（例: AKs, not KAs）
         if ranks[r1] < ranks[r2]:

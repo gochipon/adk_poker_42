@@ -29,5 +29,3 @@ def decide_action(game_state):
                     "reasoning": reasoning + " → 補正値低いためフォールドします。"}
 
     # …（ポストフロップ部分は変わらず）…
-
-}

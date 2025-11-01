@@ -55,4 +55,5 @@ root_agent = Agent(
         compute_preflop_ev,
         calculate_pot_odds,
     ],
+    output_key="agent_smith_7_final_decision",
 )
