@@ -34,4 +34,5 @@ hand_rank_evaluator_agent = Agent(
 入力例: ["AS", "KS", "QS", "JS", "TS", "2D", "3C"]
 """,
     tools=[hand_rank_evaluator_tool],
+    output_key = "hand_rank",
 )
