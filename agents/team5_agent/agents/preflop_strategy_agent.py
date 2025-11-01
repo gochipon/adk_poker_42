@@ -34,8 +34,12 @@ phaseがpreflopの場合、以下の入力が与えられたときに、最適�
   position = (your_id - dealer_button) % number_of_players
 
 2. **現在のphaseでraiseがされた回数確認する**
-  historyの中で、現在のphaseにおけるraiseの回数を数える
-3. 現在のポジションとraise回数に基づきshould_raise_on_preflopツールを使用する。
+  potが80未満の場合、raise回数は0回とする。
+  potが80以上200未満の場合、raise回数は1回とする。
+  potが200以上1000未満の場合、raise回数は2回とする。
+  potが1000以上の場合、raise回数は3回とする。
+
+  3. 現在のポジションとraise回数に基づきshould_raise_on_preflopツールを使用する。
   戻り値を確認し、Trueの場合は"raise"を選択し、そうでなければ"fold"を選択する
   raiseするamountは、raise回数に応じて以下のように決定する:
 - 0回目のraise: 60
