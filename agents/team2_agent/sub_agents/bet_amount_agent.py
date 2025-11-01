@@ -16,6 +16,7 @@ root_agent = Agent(
 
 参照情報:
 - 検証済みアクションの詳細: {validated_action}
+- ボードテクスチャー診断: {board_texture}
 - 現在のポットサイズ、相手のベット金額、スタックサイズなど提供情報
 - pot_odds_tool を利用して、必要勝率やリスク・リワードを定量的に確認する
 

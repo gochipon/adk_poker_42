@@ -22,7 +22,6 @@ root_agent = Agent(
   - preflop: preflop_score_tool を使用してハンドの強さを評価
   - flop/turn/river: hand_score_tool と hand_rank_tool を使用してボードとハンドの総合的な強さを評価
 2. pot_odds_tool を呼び出し、必要勝率と pot odds を確認する。
-3. テーブル状況（ポジション、スタック、ベット履歴）を考慮しながら、全体のリスクとリターンを評価する。
 
 出力では、提案アクションとその根拠を明確に示してください。アクションは以下から選択してください:
 - fold

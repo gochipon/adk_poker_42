@@ -12,7 +12,6 @@ root_agent = Agent(
     instruction="""あなたはテキサスホールデム・ポーカーのエキスパートです。
 
 意思決定の途中結果:
-- アクション候補: {action_decision}
 - ハンド評価による承認: {validated_action}
 - ベット額の提案: {bet_recommendation}
 
