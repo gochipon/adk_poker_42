@@ -1,6 +1,5 @@
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
-from ..tools.should_raise_on_preflop  import should_raise_on_preflop
 
 AGENT_MODEL = LiteLlm(model="openai/gpt-4o-mini")
 
@@ -66,6 +65,5 @@ postflop_strategy_agent = Agent(
 さらに以下の条件を加える。
 
     """,
-    tools=[should_raise_on_preflop],
-    output_key="strategy_analysis",
+    output_key="strategy_analysis_postflop",
     )

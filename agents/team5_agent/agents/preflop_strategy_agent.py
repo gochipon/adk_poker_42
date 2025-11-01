@@ -47,5 +47,5 @@ phaseがpreflopの場合、以下の入力が与えられたときに、最適�
 
     """,
     tools=[should_raise_on_preflop],
-    output_key="strategy_analysis",
+    output_key="strategy_analysis_preflop",
     )

@@ -13,7 +13,7 @@ return_agent = Agent(
     description="ポーカーの戦略分析をJSON形式に整形するエキスパート",
     instruction="""あなたは戦略分析結果を指定されたJSON形式に正確に変換する専門家です。
 
-戦略分析結果：{strategy_analysis}
+戦略分析結果：{strategy_analysis_preflop},{strategy_analysis_postflop}
 上記の戦略分析を基に、必ず次のJSON形式で正確に回答してください:
 {
   "action": "fold|check|call|raise|all_in",
