@@ -106,7 +106,7 @@ uv run python main.py
   uv run python main.py --cli --agent-only --agents "team1_agent:2,team3_agent:1,beginner_agent:1"
   
   # 3つのインスタンスを並列実行（エージェントの指定はcompose.yamlを修正）
-  docker compose up --scale poker-app=3
+  docker compose up --scale poker-app=6
   
   # ハンド数指定
   uv run python main.py --cli --agent-only --max-hands 50
