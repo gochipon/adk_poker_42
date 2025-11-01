@@ -1,7 +1,7 @@
 from google.adk.tools.tool_context import ToolContext
 from ..agents.preflop_range import range_0_open, range_1_open, range_3_open, range_4_open,range_3bet, range_4bet, range_5bet
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 def should_raise_on_preflop(cards: List[str], position: int, raise_cnt: int, tool_context: ToolContext) -> bool:
     """
@@ -15,16 +15,25 @@ def should_raise_on_preflop(cards: List[str], position: int, raise_cnt: int, too
 
     hand_range = get_preflop_hand_range(position, raise_cnt, tool_context)
 
-    pair = (parse_card(cards[0]), parse_card(cards[1]))
-    res = False
-    for d in hand_range['hand_range']:
+    # 正規化: your_cards を強い順（ランクの降順）にソートしてからマッチング
+    parsed: Tuple[Tuple[int, str], Tuple[int, str]] = (
+        parse_card(cards[0]),
+        parse_card(cards[1]),
+    )
+    sorted_pair: Tuple[Tuple[int, str], Tuple[int, str]] = tuple(sorted(parsed, key=lambda x: x[0], reverse=True))  # type: ignore
+
+    # 一部のレンジデータではキーのタプル順序が一定でない可能性があるため、
+    # 念のため逆順もチェックして堅牢性を上げる
+    candidates = [sorted_pair, (sorted_pair[1], sorted_pair[0])]
+
+    for d in hand_range["hand_range"]:
         if not isinstance(d, dict):
             continue
         for key, value in d.items():
-            if key == pair:
-                res = value
-                break
-    return res
+            if key in candidates:
+                return value
+
+    return False
 
 def parse_card(token):
     # 例: 'A♥', '10♣', 'T♣', 'AH', 'Ts', 'qd' などを受け付ける
