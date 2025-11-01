@@ -87,7 +87,6 @@ def calc_pot_odds(
 
 def calc_pot_odds_from_game_state(
     game_state: str,
-    to_call_override: float = 0
 ) -> Dict[str, Any]:
     """
     ゲーム状態（JSON）からポットオッズを計算する。
@@ -110,7 +109,7 @@ def calc_pot_odds_from_game_state(
 
     # 必要な情報を抽出
     pot = float(state.get("pot", 0))
-    to_call = float(to_call_override if to_call_override != 0 else state.get("to_call", 0))
+    to_call = float(state.get("to_call", 0))
 
     # ポットオッズを計算
     result = calc_pot_odds(pot, to_call, format_type="all")
