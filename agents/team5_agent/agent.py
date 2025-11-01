@@ -1,25 +1,29 @@
-from google.adk.agents import Agent
+from google.adk.agents import Agent, SequentialAgent
+from google.adk.models.lite_llm import LiteLlm
+from team5_agent.agents.poker_rank_agent import hand_rank_evaluator_agent
+from .agents.preflop_strategy_agent import preflop_strategy_agent
+from .agents.postflop_strategy_agent import postflop_strategy_agent
+from .agents.poker_rank_agent import hand_rank_evaluator_agent
 
-root_agent = Agent(
-    name="beginner_poker_agent",
-    model="gemini-2.5-flash-lite",
-    description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
-    instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
+AGENT_MODEL = LiteLlm(model="openai/gpt-4o-mini")
 
-あなたのタスクは、現在のゲーム状況を分析し、最善の意思決定を下すことです。
+return_agent = Agent(
+    name="team5_agent",
+    model=AGENT_MODEL,
+    description="ポーカーの戦略分析をJSON形式に整形するエキスパート",
+    instruction="""あなたは戦略分析結果を指定されたJSON形式に正確に変換する専門家です。
 
-あなたには以下の情報が与えられます:
-- あなたの手札（ホールカード）
-- コミュニティカード（あれば）
-- 選択可能なアクション
-- ポットサイズやベット情報
-- 対戦相手の情報
+まず現在のphaseがpreflopかどうかを確認してください。
+1. phaseがpreflopの場合、以下の値を使用してください。
+  戦略分析結果: {strategy_analysis_preflop}
+2. phaseがpreflop以外の場合、以下の値を使用してください。
+  戦略分析結果: {strategy_analysis_postflop}
 
-必ず次のJSON形式で回答してください:
+上記の戦略分析を基に、必ず次のJSON形式で正確に回答してください:
 {
   "action": "fold|check|call|raise|all_in",
   "amount": <数値>,
-  "reasoning": "あなたの決定の理由を簡潔に説明"
+  "reasoning": "戦略分析から導出された決定と戦略的理由の詳細な説明"
 }
 
 ルール:
@@ -27,6 +31,10 @@ root_agent = Agent(
 - "call"の場合: コールに必要な正確な金額を指定してください
 - "raise"の場合: レイズ後の合計金額を指定してください
 - "all_in"の場合: あなたの残りチップ全額を指定してください
+    """,
+    )
 
-初心者がわかるように専門用語には解説を加えてください""",
+root_agent = SequentialAgent(
+    name="poker_workflow_agent",
+    sub_agents=[hand_rank_evaluator_agent, preflop_strategy_agent, postflop_strategy_agent, return_agent],
 )
