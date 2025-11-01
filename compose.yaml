@@ -27,7 +27,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: uv run python main.py --cli --agent-only --agents "beginner_agent:4,team3_dev4:1" --max-hands 30 # Agent Onlyの設定を変更する際はここを修正
+    command: uv run python main.py --cli --agent-only --agents "beginner_agent:4,team3_dev6:1" --max-hands 30 # Agent Onlyの設定を変更する際はここを修正
     environment:
       - AGENT_SERVER_URL=http://api-server:8000
       - TZ=Asia/Tokyo
