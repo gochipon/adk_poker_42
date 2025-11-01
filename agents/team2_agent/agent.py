@@ -4,7 +4,6 @@ from google.adk.agents.sequential_agent import SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
 
 from .agent_smith_7 import root_agent as agent_smith_7
-from .agent_smith_8 import root_agent as agent_smith_8
 from .agent_yuta import root_agent as agent_yuta
 
 MODEL_GPT_4_O_MINI = LiteLlm(model="openai/gpt-4o-mini")
@@ -15,7 +14,6 @@ parallel_agent = ParallelAgent(
     sub_agents=[
         agent_yuta,
         agent_smith_7,
-        agent_smith_8,
     ],
 )
 
@@ -27,7 +25,6 @@ consensus_agent = Agent(
     
 {agent_yuta_final_decision}
 {agent_smith_7_final_decision}
-{agent_smith_8_final_decision}
 上記はそれぞれTeam2の異なるエージェントが出した提案です。
 各エージェントの提案(JSON形式)を読み、行動(action)・金額(amount)・理由(reasoning)を評価してください。
 
@@ -35,6 +32,7 @@ consensus_agent = Agent(
 - 金額の整合性やポーカーのルールに違反しないかをチェックする
 - 複数の提案から最も合理的なものを選択するか、必要に応じて独自の改善案を提示する
 - 最終的な判断に至った理由を簡潔にまとめる
+- ドローの可能性は考えないでください
 
 必ず次のJSON形式で回答してください:
 {
