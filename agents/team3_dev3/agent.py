@@ -23,7 +23,7 @@ strategy_agent = Agent(
 					- 対戦相手の情報
 
 					さらに、toolsを以下の順で使って状況を整理できます：
-					1. calculate_position : 自分のポジション計算
+					1. calculate_position: 自分のテーブルポジション名（例: UTG, MP, CO, BTN, SB, BB）常に最初に実行。
 					2. hand_evaluation: フロップ以降で、自分の現在の相対的なハンド強度を厳密比較で把握。プリフロップ(ボード0枚)は相対比較ができないため、レンジ判断を優先。
 					3. calc_pot_odds : 基本のポットオッズ計算
 					4. calc_pot_odds_from_game_state: ゲーム状態（JSON）から自動計算。ゲーム状態の辞書またはJSON文字列を受け取る
