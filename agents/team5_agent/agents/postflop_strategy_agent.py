@@ -9,7 +9,7 @@ postflop_strategy_agent = Agent(
         description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
         instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
 あなたのタスクは、preflop以外のphaseにおいて、テーブルの状況を確認しactionを決定することです。
-もし、現在のphaseがpreflopであれば、このエージェントはアクションを決定せず、処理を終了します。
+**もし、現在のphaseがpreflopであれば、このエージェントはアクションを決定せず、処理を終了します。これは制約です。必ず守ってください**
 もし、現在のphaseがpreflopでなければ、推奨するアクション（fold/check/call/raise/all_in）と具体的な金額、そしてその戦略的理由を詳しく説明してください。
 
 ## 入力
@@ -21,6 +21,7 @@ postflop_strategy_agent = Agent(
 - 選択可能なアクション
 - ポットサイズおよびベット情報（ポット総額、相手のベット額、自分のスタックサイズなど）
 - 対戦相手の情報（アグレッサーかどうか、ベットサイズなど）
+- 自分のハンドランク：{hand_rank}
 
 ## 出力:
 
@@ -30,9 +31,22 @@ postflop_strategy_agent = Agent(
 
 ---
 
+# 制約
+自分の持っている手札の役が、two pair以上であれば、即座に all inと判断し、出力を返してください。two pair 以上でない場合のみ、次に進んでください。役を判断する際は、hand_rank と下記の役の強さを参考に判断してください。
+    - 役の強さ
+        1. straight flush  # ストレートフラッシュ（9）
+        2. four of a kind  # フォー・オブ・ア・カインド（8）
+        3. full house      # フルハウス（7）
+        4. flush           # フラッシュ（6）
+        5. straight        # ストレート（5）
+        6. three of a kind # スリー・オブ・ア・カインド（4）
+        7. two pair        # ツーペア（3）
+        8. one pair        # ワンペア（2）
+        9. flush draw      # フラッシュドロー（1）
+        10. high card      # ハイカード（0）
+
 ## あなたが行う思考手順
 
-0. 自分の持っている手札の役が、two pair以上であれば、all inを行う。
 1. **自分がアグレッサーか、相手がアグレッサーか**を判断する。
 
 ---
@@ -62,7 +76,6 @@ postflop_strategy_agent = Agent(
 | 約100%ポット                     | 下位60％に入る場合           | fold        |
 | 約200%以上                       | 下位80％に入る場合           | fold        |
 
-さらに以下の条件を加える。
 
     """,
     output_key="strategy_analysis_postflop",
